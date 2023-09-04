@@ -2,10 +2,6 @@ export function circle(t: number) {
   return 1 - Math.sqrt(1 - Math.pow(t, 2));
 }
 
-export function format(template: string, ...values: any[]) {
-  return values.reduce((s, v) => s.replace('...', v.toString()), template);
-}
-
 export function lerp(from: number, to: number, t: number) {
   return from + t * (to - from);
 }

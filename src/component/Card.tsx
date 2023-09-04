@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { CSSProperties as CSS } from 'react';
-import { format, rotate } from '../utils';
+import { cfg } from '../config';
+import { rotate } from '../utils';
 
 const css: { card: CSS; content: CSS } = {
   card: {
@@ -10,8 +11,8 @@ const css: { card: CSS; content: CSS } = {
     overflow: 'hidden',
     borderRadius: '10px',
     transformOrigin: 'bottom left',
-    width: '350px',
-    height: '200px'
+    width: `${cfg.card.width}px`,
+    height: `${cfg.card.height}px`
   },
   content: {
     width: '100%',
@@ -19,26 +20,33 @@ const css: { card: CSS; content: CSS } = {
   }
 };
 
-const defaultShadow = { x: 2, y: 5 };
-const defaultMove = { x: 50, y: 50 };
+type Properties = {
+  x: number;
+  y: number;
+  r: number;
+  scale: number;
+  src: string;
+  desc: string;
+};
 
-export default function Card({ x, y, r, scale, src }: { x: number; y: number; r: number; scale: number; src: string }) {
-  const shadow = rotate(defaultShadow, -r);
+export default function Card({ x, y, r, scale, src, desc }: Properties) {
+  const boxShadow = rotate(cfg.card.boxShadow, r * -1);
+  const whileHover = rotate(cfg.card.whileHover, r);
+
   const card: CSS = {
     ...css.card,
-    inset: format('...px ...px', y, x),
-    transform: format('rotate(...deg) scale(...)', r, scale),
-    boxShadow: format('rgba(0, 0, 0, 0.1) ...px ...px 10px', shadow.x, shadow.y)
+    inset: `${y}px ${x}px`,
+    transform: `rotate(${r}deg) scale(${scale})`,
+    boxShadow: `rgba(0, 0, 0, 0.1) ${boxShadow.x}px ${boxShadow.y}px 10px`
   };
 
-  const move = rotate(defaultMove, r);
   const animate = {
-    inset: format('...px ...px', y + move.y * scale, x + move.x * scale)
+    inset: `${y + whileHover.y * scale}px ${x + whileHover.x * scale}px`
   };
 
   return (
     <motion.div whileHover={animate} style={card}>
-      <img src={src} draggable={'false'} style={css.content} />
+      <img src={src} alt={desc} draggable={'false'} style={css.content} />
     </motion.div>
   );
 }

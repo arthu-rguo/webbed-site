@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { CSSProperties as CSS } from 'react';
 import { cfg } from '../config';
 import { circle, lerp, rotate } from '../utils';
-import Card from './Card';
+import { Card } from './Card';
 
 const bounds = _generateBounds();
 
@@ -15,24 +15,25 @@ const css: { deck: CSS } = {
 
 type Properties = {
   data: {
-    src: string;
+    id: string;
     desc: string;
   }[];
 };
 
-export default function Deck({ data }: Properties) {
+export function Deck({ data }: Properties) {
   const cards: React.JSX.Element[] = [];
 
   for (let i = 0, t = 0; i < data.length; i++, t = i / (data.length - 1)) {
     cards.push(
       <Card
         key={i}
-        x={lerp(cfg.deck.bottom.x, cfg.deck.top.x, Math.pow(t, 1.1)) - bounds.minX}
-        y={lerp(cfg.deck.bottom.y, cfg.deck.top.y, circle(t)) - cfg.card.height - bounds.minY}
-        r={lerp(cfg.deck.bottom.r, cfg.deck.top.r, t)}
-        scale={lerp(cfg.deck.bottom.scale, cfg.deck.top.scale, t)}
-        src={data[i].src}
-        desc={data[i].desc}
+        layout={{
+          x: lerp(cfg.deck.bottom.x, cfg.deck.top.x, t) - bounds.minX,
+          y: lerp(cfg.deck.bottom.y, cfg.deck.top.y, circle(t)) - cfg.card.height - bounds.minY,
+          r: lerp(cfg.deck.bottom.r, cfg.deck.top.r, t),
+          scale: lerp(cfg.deck.bottom.scale, cfg.deck.top.scale, t)
+        }}
+        data={data[i]}
       />
     );
   }

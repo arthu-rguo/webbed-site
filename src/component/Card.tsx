@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CSSProperties as CSS } from 'react';
+import { CSSProperties as CSS, useState } from 'react';
 import { cfg } from '../config';
 import { rotate } from '../utils';
 
@@ -12,41 +12,62 @@ const css: { card: CSS; content: CSS } = {
     borderRadius: '10px',
     transformOrigin: 'bottom left',
     width: `${cfg.card.width}px`,
-    height: `${cfg.card.height}px`
+    height: `${cfg.card.height}px`,
+    backgroundSize: 'cover'
   },
   content: {
     width: '100%',
-    objectFit: 'cover'
+    objectFit: 'cover',
+    transition: 'opacity 0.25s'
   }
 };
 
 type Properties = {
-  x: number;
-  y: number;
-  r: number;
-  scale: number;
-  src: string;
-  desc: string;
+  layout: {
+    x: number;
+    y: number;
+    r: number;
+    scale: number;
+  };
+  data: {
+    id: string;
+    desc: string;
+  };
 };
 
-export default function Card({ x, y, r, scale, src, desc }: Properties) {
-  const boxShadow = rotate(cfg.card.boxShadow, r * -1);
-  const whileHover = rotate(cfg.card.whileHover, r);
+export function Card({ layout, data }: Properties) {
+  const [loading, setLoading] = useState(true);
 
-  const card: CSS = {
-    ...css.card,
-    inset: `${y}px ${x}px`,
-    transform: `rotate(${r}deg) scale(${scale})`,
-    boxShadow: `rgba(0, 0, 0, 0.1) ${boxShadow.x}px ${boxShadow.y}px 10px`
+  const boxShadow = rotate(cfg.card.boxShadow, layout.r * -1);
+  const whileHover = rotate(cfg.card.whileHover, layout.r);
+
+  const modified: { card: CSS; content: CSS } = {
+    card: {
+      ...css.card,
+      inset: `${layout.y}px ${layout.x}px`,
+      transform: `rotate(${layout.r}deg) scale(${layout.scale})`,
+      boxShadow: `rgba(0, 0, 0, 0.25) ${boxShadow.x}px ${boxShadow.y}px 5px`,
+      backgroundImage: `url(/images/${data.id}-xs.png)`
+    },
+    content: {
+      ...css.content,
+      opacity: `${loading ? '0' : '100'}`
+    }
   };
 
   const animate = {
-    inset: `${y + whileHover.y * scale}px ${x + whileHover.x * scale}px`
+    inset: `${layout.y + whileHover.y * layout.scale}px ${layout.x + whileHover.x * layout.scale}px`
   };
 
   return (
-    <motion.div whileHover={animate} style={card}>
-      <img src={src} alt={desc} draggable={'false'} style={css.content} />
+    <motion.div whileHover={animate} style={modified.card}>
+      <img
+        src={`/images/${data.id}.png`}
+        alt={data.desc}
+        onLoad={() => setLoading(false)}
+        draggable={'false'}
+        style={modified.content}
+      />
     </motion.div>
   );
 }

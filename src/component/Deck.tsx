@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CSSProperties as CSS } from 'react';
+import { CSSProperties as CSS, ReactNode } from 'react';
 import { cfg } from '../config';
 import { circle, lerp, rotate } from '../utils';
 import { Card } from './Card';
@@ -8,6 +8,7 @@ const bounds = _generateBounds();
 
 const css: { deck: CSS } = {
   deck: {
+    position: 'relative',
     width: `${bounds.maxX - bounds.minX}px`,
     height: `${bounds.maxY - bounds.minY}px`
   }
@@ -21,7 +22,7 @@ type Properties = {
 };
 
 export function Deck({ data }: Properties) {
-  const cards: React.JSX.Element[] = [];
+  const cards: ReactNode[] = [];
 
   for (let i = 0, t = 0; i < data.length; i++, t = i / (data.length - 1)) {
     cards.push(

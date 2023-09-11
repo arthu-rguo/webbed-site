@@ -44,7 +44,7 @@ export function Card({ layout, data }: Properties) {
       ...css.img,
       opacity: `${loading ? '0' : '100'}`
     }
-  } as const;
+  };
 
   return (
     <div style={modified.div}>

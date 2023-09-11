@@ -1,33 +1,27 @@
-import { motion } from 'framer-motion';
 import { CSSProperties as CSS, useState } from 'react';
-import { cfg } from '../config';
-import { rotate } from '../utils';
+import { CARD_HEIGHT, CARD_WIDTH, image } from '../utils';
 
-const css: { card: CSS; content: CSS } = {
-  card: {
+const css: { div: CSS; img: CSS } = {
+  div: {
     position: 'absolute',
-    display: 'flex',
-    alignItems: 'center',
-    overflow: 'hidden',
+    transformOrigin: 'top left',
     borderRadius: '10px',
-    transformOrigin: 'bottom left',
-    width: `${cfg.card.width}px`,
-    height: `${cfg.card.height}px`,
+    width: `${CARD_WIDTH}px`,
+    height: `${CARD_HEIGHT}px`,
     backgroundSize: 'cover'
   },
-  content: {
+  img: {
     width: '100%',
     objectFit: 'cover',
     transition: 'opacity 0.25s'
   }
-};
+} as const;
 
 type Properties = {
   layout: {
     x: number;
     y: number;
     r: number;
-    scale: number;
   };
   data: {
     id: string;
@@ -35,39 +29,32 @@ type Properties = {
   };
 };
 
+// A component that renders a clickable card that loads and displays an image.
 export function Card({ layout, data }: Properties) {
   const [loading, setLoading] = useState(true);
 
-  const boxShadow = rotate(cfg.card.boxShadow, layout.r * -1);
-  const whileHover = rotate(cfg.card.whileHover, layout.r);
-
-  const modified: { card: CSS; content: CSS } = {
-    card: {
-      ...css.card,
-      inset: `${layout.y}px ${layout.x}px`,
-      transform: `rotate(${layout.r}deg) scale(${layout.scale})`,
-      boxShadow: `rgba(0, 0, 0, 0.25) ${boxShadow.x}px ${boxShadow.y}px 5px`,
-      backgroundImage: `url(/images/${data.id}-xs.png)`
+  // Extend the default styles with the given properties.
+  const modified: { div: CSS; img: CSS } = {
+    div: {
+      ...css.div,
+      transform: `translate(${layout.x}px, ${layout.y}px) rotate(${layout.r}deg)`,
+      backgroundImage: `url(${image(data.id, true)})`
     },
-    content: {
-      ...css.content,
+    img: {
+      ...css.img,
       opacity: `${loading ? '0' : '100'}`
     }
-  };
-
-  const animate = {
-    inset: `${layout.y + whileHover.y * layout.scale}px ${layout.x + whileHover.x * layout.scale}px`
-  };
+  } as const;
 
   return (
-    <motion.div whileHover={animate} style={modified.card}>
+    <div style={modified.div}>
       <img
-        src={`/images/${data.id}.png`}
+        src={image(data.id)}
         alt={data.desc}
+        draggable={false}
         onLoad={() => setLoading(false)}
-        draggable={'false'}
-        style={modified.content}
+        style={modified.img}
       />
-    </motion.div>
+    </div>
   );
 }

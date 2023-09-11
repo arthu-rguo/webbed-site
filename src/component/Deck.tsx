@@ -1,70 +1,71 @@
-import { motion } from 'framer-motion';
-import { CSSProperties as CSS, ReactNode } from 'react';
-import { cfg } from '../config';
-import { circle, lerp, rotate } from '../utils';
+import { CSSProperties as CSS, useState } from 'react';
 import { Card } from './Card';
+import { CARD_HEIGHT, clamp, rotate, useMouseWheel } from '../utils';
+import { motion } from 'framer-motion';
 
-const bounds = _generateBounds();
+const css: CSS = {
+  position: 'relative',
+  transition: `transform 0.025s linear`
+} as const;
 
-const css: { deck: CSS } = {
-  deck: {
-    position: 'relative',
-    width: `${bounds.maxX - bounds.minX}px`,
-    height: `${bounds.maxY - bounds.minY}px`
+const defs = {
+  offsets: { x: 500, y: (-1 * CARD_HEIGHT) / 2 },
+  angle: 24,
+  hover: { x: 25, y: 0 },
+  shadow: {
+    offsets: { x: 10, y: 10 },
+    blur: 10,
+    color: '#00000080'
   }
-};
+} as const;
 
 type Properties = {
+  layout: {
+    x: number;
+  };
   data: {
     id: string;
     desc: string;
   }[];
 };
 
-export function Deck({ data }: Properties) {
-  const cards: ReactNode[] = [];
+// A component that renders a circular deck of cards that move on scroll and hover.
+export function Deck({ layout, data }: Properties) {
+  const [rotation, setRotation] = useState(0);
+  const angle = 0.5 * defs.angle * (data.length - 1);
+  const cards = [];
 
-  for (let i = 0, t = 0; i < data.length; i++, t = i / (data.length - 1)) {
-    cards.push(
-      <Card
-        key={i}
-        layout={{
-          x: lerp(cfg.deck.bottom.x, cfg.deck.top.x, t) - bounds.minX,
-          y: lerp(cfg.deck.bottom.y, cfg.deck.top.y, circle(t)) - cfg.card.height - bounds.minY,
-          r: lerp(cfg.deck.bottom.r, cfg.deck.top.r, t),
-          scale: lerp(cfg.deck.bottom.scale, cfg.deck.top.scale, t)
-        }}
-        data={data[i]}
-      />
-    );
-  }
+  // Rotate the deck on scroll.
+  useMouseWheel((e) => {
+    setRotation((r) => clamp(r + 0.05 * e.deltaY, -angle, angle));
+  }, 0.025);
 
-  return <motion.div style={css.deck}>{cards}</motion.div>;
-}
-
-function _generateBounds() {
-  const corners: { x: number; y: number }[] = [];
-
-  for (let offsets = cfg.card.corners, i = 0; i < offsets.length; i++) {
-    const top = rotate(offsets[i], cfg.deck.top.r);
-    const bottom = rotate(offsets[i], cfg.deck.bottom.r);
-
-    corners.push(
-      {
-        x: cfg.deck.top.x + top.x * cfg.deck.top.scale,
-        y: cfg.deck.top.y + top.y * cfg.deck.top.scale
-      },
-      {
-        x: cfg.deck.bottom.x + bottom.x * cfg.deck.bottom.scale,
-        y: cfg.deck.bottom.y + bottom.y * cfg.deck.bottom.scale
+  // Generate a card for each data element.
+  for (let i = 0, r = angle; i < data.length; i++, r -= defs.angle) {
+    const { x, y } = rotate(defs.offsets, r);
+    const whileHover = {
+      get transform() {
+        const { x, y } = rotate(defs.hover, r);
+        return `translate(${x}px, ${y}px)`;
       }
+    };
+    cards.push(
+      <motion.div whileHover={whileHover}>
+        <Card key={data[i].id} layout={{ x, y, r }} data={data[i]} />
+      </motion.div>
     );
   }
 
-  return {
-    minX: Math.min(...corners.map((c) => c.x)),
-    minY: Math.min(...corners.map((c) => c.y)),
-    maxX: Math.max(...corners.map((c) => c.x)),
-    maxY: Math.max(...corners.map((c) => c.y))
-  };
+  // Extend the default styles with the given properties.
+  const modified: CSS = {
+    ...css,
+    transform: `translate(${layout.x}px, 0px) rotate(${rotation}deg)`,
+    // Compensate for the rotation of the deck when applying the drop shadow.
+    get filter() {
+      const { x, y } = rotate(defs.shadow.offsets, -rotation);
+      return `drop-shadow(${x}px ${y}px ${defs.shadow.blur}px ${defs.shadow.color})`;
+    }
+  } as const;
+
+  return <div style={modified}>{cards}</div>;
 }

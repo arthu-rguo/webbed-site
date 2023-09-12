@@ -1,15 +1,15 @@
-import { CssBaseline, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 import { CSSProperties as CSS } from 'react';
 import { Deck } from './component/Deck';
 import { DisableScroll } from './component/DisableScroll';
 
 const members = [
-  { id: 'sample-card', desc: 'sample' },
-  { id: 'sample-card', desc: 'sample' },
-  { id: 'sample-card', desc: 'sample' },
-  { id: 'sample-card', desc: 'sample' },
-  { id: 'sample-card', desc: 'sample' },
-  { id: 'sample-card', desc: 'sample' }
+  { id: 'sample-card', description: 'sample', url: '' },
+  { id: 'sample-card', description: 'sample', url: '' },
+  { id: 'sample-card', description: 'sample', url: '' },
+  { id: 'sample-card', description: 'sample', url: '' },
+  { id: 'sample-card', description: 'sample', url: '' },
+  { id: 'sample-card', description: 'sample', url: '' }
 ];
 
 const css: { div: CSS; fab: CSS } = {
@@ -35,9 +35,6 @@ export function App() {
       <CssBaseline />
       <div style={css.div}>
         <Deck layout={{ x: defs.offset }} data={members} />
-        <SpeedDial icon={<SpeedDialIcon />} ariaLabel={'button'} sx={css.fab}>
-          <SpeedDialAction />
-        </SpeedDial>
       </div>
     </DisableScroll>
   );

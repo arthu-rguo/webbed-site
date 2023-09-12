@@ -1,5 +1,5 @@
 import { CSSProperties as CSS, useState } from 'react';
-import { CARD_HEIGHT, CARD_WIDTH, image } from '../utils';
+import { CARD_HEIGHT, CARD_WIDTH, image, navigate } from '../utils';
 
 const css: { div: CSS; img: CSS } = {
   div: {
@@ -13,7 +13,7 @@ const css: { div: CSS; img: CSS } = {
   img: {
     width: '100%',
     objectFit: 'cover',
-    transition: 'opacity 0.25s'
+    transition: 'opacity 0.1s'
   }
 } as const;
 
@@ -25,13 +25,14 @@ type Properties = {
   };
   data: {
     id: string;
-    desc: string;
+    description: string;
+    url: string;
   };
 };
 
-// A component that renders a clickable card that loads and displays an image.
+// A component that renders a clickable card that displays an image.
 export function Card({ layout, data }: Properties) {
-  const [loading, setLoading] = useState(true);
+  const [isReady, setReady] = useState(false);
 
   // Extend the default styles with the given properties.
   const modified: { div: CSS; img: CSS } = {
@@ -42,7 +43,7 @@ export function Card({ layout, data }: Properties) {
     },
     img: {
       ...css.img,
-      opacity: `${loading ? '0' : '100'}`
+      opacity: `${isReady ? '100' : '0'}`
     }
   };
 
@@ -50,10 +51,11 @@ export function Card({ layout, data }: Properties) {
     <div style={modified.div}>
       <img
         src={image(data.id)}
-        alt={data.desc}
-        draggable={false}
-        onLoad={() => setLoading(false)}
+        alt={data.description}
+        draggable={'false'}
         style={modified.img}
+        onLoad={() => setReady(true)}
+        onClick={() => navigate(data.url)}
       />
     </div>
   );

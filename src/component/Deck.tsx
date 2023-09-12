@@ -1,22 +1,23 @@
 import { CSSProperties as CSS, useState } from 'react';
-import { Card } from './Card';
 import { CARD_HEIGHT, clamp, rotate, useMouseWheel } from '../utils';
 import { motion } from 'framer-motion';
+import { Card } from './Card';
 
 const css: CSS = {
   position: 'relative',
-  transition: `transform 0.025s linear`
+  transition: `transform 0.01s linear`
 } as const;
 
 const defs = {
-  offsets: { x: 500, y: (-1 * CARD_HEIGHT) / 2 },
+  offsets: { x: 500, y: -0.5 * CARD_HEIGHT },
   angle: 24,
-  hover: { x: 25, y: 0 },
+  hover: { x: 50, y: 0 },
   shadow: {
     offsets: { x: 10, y: 10 },
-    blur: 10,
+    blur: 5,
     color: '#00000080'
-  }
+  },
+  tickRate: 0.01
 } as const;
 
 type Properties = {
@@ -25,7 +26,8 @@ type Properties = {
   };
   data: {
     id: string;
-    desc: string;
+    description: string;
+    url: string;
   }[];
 };
 
@@ -35,9 +37,9 @@ export function Deck({ layout, data }: Properties) {
 
   // Rotate the deck on scroll.
   const totalAngle = defs.angle * (1 - data.length);
-  useMouseWheel((e) => {
-    setRotation((r) => clamp(r - 0.05 * e.deltaY, totalAngle, 0));
-  }, 0.025);
+  useMouseWheel((dy) => {
+    setRotation((r) => clamp(r - 2 * dy * defs.tickRate, totalAngle, 0));
+  }, defs.tickRate);
 
   // Generate a card for each data element.
   const cards = [];
@@ -49,10 +51,9 @@ export function Deck({ layout, data }: Properties) {
       }
     };
 
-    const { x, y } = rotate(defs.offsets, r);
     cards.push(
-      <motion.div whileHover={whileHover}>
-        <Card key={data[i].id} layout={{ x, y, r }} data={data[i]} />
+      <motion.div key={i} whileHover={whileHover}>
+        <Card layout={{ ...rotate(defs.offsets, r), r }} data={data[i]} />
       </motion.div>
     );
   }

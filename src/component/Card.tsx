@@ -1,8 +1,8 @@
 import { CSSProperties as CSS, useState } from 'react';
 import { CARD_HEIGHT, CARD_WIDTH, image, navigate } from '../utils';
 
-const css: { div: CSS; img: CSS } = {
-  div: {
+const css: { container: CSS; content: CSS } = {
+  container: {
     position: 'absolute',
     transformOrigin: 'top left',
     borderRadius: '10px',
@@ -10,12 +10,12 @@ const css: { div: CSS; img: CSS } = {
     height: `${CARD_HEIGHT}px`,
     backgroundSize: 'cover'
   },
-  img: {
+  content: {
     width: '100%',
     objectFit: 'cover',
     transition: 'opacity 0.1s'
   }
-} as const;
+};
 
 type Properties = {
   layout: {
@@ -35,25 +35,25 @@ export function Card({ layout, data }: Properties) {
   const [isReady, setReady] = useState(false);
 
   // Extend the default styles with the given properties.
-  const modified: { div: CSS; img: CSS } = {
-    div: {
-      ...css.div,
+  const _css: { container: CSS; content: CSS } = {
+    container: {
+      ...css.container,
       transform: `translate(${layout.x}px, ${layout.y}px) rotate(${layout.r}deg)`,
       backgroundImage: `url(${image(data.id, true)})`
     },
-    img: {
-      ...css.img,
+    content: {
+      ...css.content,
       opacity: `${isReady ? '100' : '0'}`
     }
   };
 
   return (
-    <div style={modified.div}>
+    <div style={_css.container}>
       <img
         src={image(data.id)}
         alt={data.description}
         draggable={'false'}
-        style={modified.img}
+        style={_css.content}
         onLoad={() => setReady(true)}
         onClick={() => navigate(data.url)}
       />

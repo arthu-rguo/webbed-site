@@ -1,6 +1,6 @@
 import { CssBaseline } from '@mui/material';
 import { Deck } from './component/Deck';
-import { CSSProperties as CSS } from 'react';
+import { CSSProperties } from 'react';
 
 const members = [
   { id: 'sample-card', description: 'sample', url: '' },
@@ -11,8 +11,9 @@ const members = [
   { id: 'sample-card', description: 'sample', url: '' }
 ];
 
-const css: { container: CSS } = {
-  container: {
+// The main component.
+export function App() {
+  const styles = {
     position: 'fixed',
     alignItems: 'center',
     justifyContent: 'space-evenly',
@@ -20,13 +21,10 @@ const css: { container: CSS } = {
     overflow: 'hidden',
     width: '100vw',
     height: '100vh'
-  }
-};
+  } as CSSProperties;
 
-// The main component.
-export function App() {
   return (
-    <div style={css.container}>
+    <div style={styles}>
       <CssBaseline />
       <Deck data={members} />
     </div>

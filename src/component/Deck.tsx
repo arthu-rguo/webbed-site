@@ -1,4 +1,4 @@
-import { CSSProperties as CSS, useState } from 'react';
+import { CSSProperties, useState } from 'react';
 import { CARD_HEIGHT, clamp, rotate, useMouseWheel } from '../utils';
 import { motion } from 'framer-motion';
 import { Card } from './Card';
@@ -15,13 +15,6 @@ const def = {
     color: '#00000080'
   }
 } as const;
-
-const css: { container: CSS } = {
-  container: {
-    position: 'relative',
-    transition: `transform 0.01s linear`
-  }
-};
 
 type Properties = {
   data: {
@@ -44,32 +37,22 @@ export function Deck({ data }: Properties) {
   // Generate a card for each data element.
   const cards = [];
   for (let i = 0, r = 0; i < data.length; i++, r = i * def.angle) {
-    const whileHover = {
-      get transform() {
-        const { x, y } = rotate(def.hover, r);
-        return `translate(${x}px, ${y}px)`;
-      }
-    };
-
+    const { x: tx, y: ty } = rotate(def.hover, r);
     cards.push(
-      <motion.div key={i} whileHover={whileHover}>
+      <motion.div key={i} whileHover={{ transform: `translate(${tx}px, ${ty}px)` }}>
         <Card layout={{ ...rotate(def.offsets, r), r }} data={data[i]} />
       </motion.div>
     );
   }
 
-  // Extend the default styles with the given properties.
-  const _css: { container: CSS } = {
-    container: {
-      ...css.container,
-      transform: `translate(${def.center.x}px, ${def.center.y}px) rotate(${rotation}deg)`,
-      // Compensate for the rotation of the deck when applying the drop shadow.
-      get filter() {
-        const { x, y } = rotate(def.shadow.offsets, -rotation);
-        return `drop-shadow(${x}px ${y}px ${def.shadow.blur}px ${def.shadow.color})`;
-      }
-    }
-  };
+  // Apply inline styles based on constants and properties.
+  const { x: fx, y: fy } = rotate(def.shadow.offsets, -rotation);
+  const styles = {
+    position: 'relative',
+    transition: `transform 0.01s linear`,
+    transform: `translate(${def.center.x}px, ${def.center.y}px) rotate(${rotation}deg)`,
+    filter: `drop-shadow(${fx}px ${fy}px ${def.shadow.blur}px ${def.shadow.color})`
+  } as CSSProperties;
 
-  return <div style={_css.container}>{cards}</div>;
+  return <div style={styles}>{cards}</div>;
 }

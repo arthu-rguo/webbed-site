@@ -28,18 +28,16 @@ export function rotate({ x, y }: { x: number; y: number }, r: number) {
 }
 
 // A custom hook that fires when the mouse wheel is scrolled.
-export function useMouseWheel(onMouseWheel: (dy: number) => void, t = 0) {
+export function useMouseWheel(onMouseWheel: (dy: number) => void, t: number) {
   useEffect(() => {
     let id: unknown = null;
 
     // Avoid choking the app by firing at most once every t seconds.
     const listener = (e: WheelEvent) => {
-      id =
-        id ||
-        setTimeout(() => {
-          onMouseWheel(e.deltaY);
-          id = null;
-        }, t * 1000);
+      id ??= setTimeout(() => {
+        onMouseWheel(e.deltaY * t);
+        id = null;
+      }, t * 1000);
     };
 
     window.addEventListener('wheel', listener, { passive: true });
